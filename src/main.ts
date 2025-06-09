@@ -148,7 +148,3 @@ function requestFullscreen() {
     (canvas as any).msRequestFullscreen(); // IE11
   }
 }
-
-// canvas.addEventListener('pointerdown', () => {
-//   requestFullscreen();
-// }); // , { once: true }
