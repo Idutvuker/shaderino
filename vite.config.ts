@@ -17,7 +17,7 @@ export default defineConfig({
         name: 'Shaderino',
         short_name: 'Shaderino',
         start_url: '/shaderino/',
-        display: 'standalone',
+        display: 'fullscreen', // Enable fullscreen PWA mode
         background_color: '#000000',
         theme_color: '#000000',
         icons: [
