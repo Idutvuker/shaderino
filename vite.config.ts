@@ -32,7 +32,12 @@ export default defineConfig({
             type: 'image/svg+xml',
           }
         ]
-      }
+      },
+      injectRegister: 'auto', // Automatically prompt/install PWA
+      devOptions: {
+        enabled: true,
+        /* For local testing, enable PWA in dev mode */
+      },
     })
   ]
 });
