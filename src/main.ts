@@ -61,7 +61,7 @@ const shaderMaterial = new ShaderMaterial('shader', scene, {
   fragment: 'custom',
 }, {
   attributes: ['position', 'uv'],
-  uniforms: ['worldViewProjection', 'iTime', 'iMouse', 'uAlpha', 'uBeta', 'uGamma', 'uAspect'],
+  uniforms: ['worldViewProjection', 'iTime', 'iMouse', 'uAlpha', 'uBeta', 'uGamma', 'uAspect', 'uZoom', 'uRadius', 'uIters'],
 });
 
 shaderMaterial.setFloat('iTime', 0);
@@ -107,7 +107,7 @@ const getSliderBeta = createSliderUI({
   max: Math.PI * 2,
   step: 0.01,
   value: 0.3,
-  id: 'slider1',
+  id: 'slider2',
   smooth: true,
   smoothFactor: 0.1
 });
@@ -117,39 +117,39 @@ const getSliderGamma = createSliderUI({
   max: Math.PI * 2,
   step: 0.01,
   value: 1.0,
-  id: 'slider1',
+  id: 'slider3',
   smooth: true,
   smoothFactor: 0.1
 });
-
-// --- Fullscreen Button ---
-function addFullscreenButton() {
-  const btn = document.createElement('button');
-  btn.textContent = 'Go Fullscreen';
-  btn.style.position = 'fixed';
-  btn.style.bottom = '32px';
-  btn.style.left = '50%';
-  btn.style.transform = 'translateX(-50%)';
-  btn.style.zIndex = '1000';
-  btn.style.padding = '12px 24px';
-  btn.style.fontSize = '1.2em';
-  btn.style.background = 'rgba(0,0,0,0.8)';
-  btn.style.color = '#fff';
-  btn.style.border = 'none';
-  btn.style.borderRadius = '8px';
-  btn.style.cursor = 'pointer';
-  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-  btn.style.userSelect = 'none';
-
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    requestFullscreen();
-    // btn.remove();
-  }, { passive: false });
-
-  document.body.appendChild(btn);
-}
-addFullscreenButton();
+const getSliderZoom = createSliderUI({
+  label: 'Zoom',
+  min: 1,
+  max: 10,
+  step: 0.01,
+  value: 1.0,
+  id: 'slider4',
+  smooth: true,
+  smoothFactor: 0.1
+});
+const getSliderRadius = createSliderUI({
+  label: 'Radius',
+  min: 0.001,
+  max: 0.2,
+  step: 0.001,
+  value: 0.02,
+  id: 'sliderRadius',
+  smooth: true,
+  smoothFactor: 0.1
+});
+const getSliderIters = createSliderUI({
+  label: 'Iterations',
+  min: 1,
+  max: 30,
+  step: 1,
+  value: 10,
+  id: 'sliderIters',
+  smooth: false
+});
 
 const dampFactor = 0.92; // Dampen mouse speed
 
@@ -165,10 +165,19 @@ engine.runRenderLoop(() => {
 
   shaderMaterial.setFloat('iTime', t);
   shaderMaterial.setVector2('iMouse', { x: mouse.x, y: mouse.y });
-  shaderMaterial.setFloat('uAlpha', getSliderAlpha());
-  shaderMaterial.setFloat('uBeta', getSliderBeta());
-  shaderMaterial.setFloat('uGamma', getSliderGamma());
+
+  // shaderMaterial.setFloat('uAlpha', getSliderAlpha());
+  // shaderMaterial.setFloat('uBeta', getSliderBeta());
+  // shaderMaterial.setFloat('uGamma', getSliderGamma());
+
+  shaderMaterial.setFloat('uAlpha', orientation.alpha);
+  shaderMaterial.setFloat('uBeta', orientation.beta);
+  shaderMaterial.setFloat('uGamma', orientation.gamma);
+
   shaderMaterial.setFloat('uAspect', aspect);
+  shaderMaterial.setFloat('uZoom', getSliderZoom());
+  shaderMaterial.setFloat('uRadius', getSliderRadius());
+  shaderMaterial.setInt('uIters', getSliderIters());
   scene.render();
 });
 
@@ -187,4 +196,51 @@ function requestFullscreen() {
   } else if ((canvas as any).msRequestFullscreen) {
     (canvas as any).msRequestFullscreen(); // IE11
   }
+}
+
+// --- Device orientation (PWA/iOS/Android/desktop) ---
+let orientation = { alpha: 0, beta: 0, gamma: 0 };
+
+function handleOrientation(event: DeviceOrientationEvent) {
+  orientation.alpha = event.alpha || 0;
+  orientation.beta = event.beta || 0;
+  orientation.gamma = event.gamma || 0;
+}
+
+function enableDeviceOrientation() {
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+    // iOS 13+ (including PWA) requires permission
+    (DeviceOrientationEvent as any).requestPermission().then((response: string) => {
+      if (response === 'granted') {
+        window.addEventListener('deviceorientation', handleOrientation, true);
+      } else {
+        alert('Device orientation permission denied.');
+      }
+    }).catch(() => {
+      alert('Device orientation permission error.');
+    });
+  } else {
+    // Android, desktop, or older iOS: just add listener
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  }
+}
+
+// Show button only if permission is needed (iOS)
+if (typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+  const motionBtn = document.createElement('button');
+  motionBtn.textContent = 'Enable Motion';
+  motionBtn.style.position = 'fixed';
+  motionBtn.style.bottom = '16px';
+  motionBtn.style.left = '16px';
+  motionBtn.style.zIndex = '20';
+  document.body.appendChild(motionBtn);
+  motionBtn.addEventListener('click', () => {
+    enableDeviceOrientation();
+    motionBtn.style.display = 'none';
+  });
+} else {
+  // Non-iOS: enable immediately
+  enableDeviceOrientation();
 }

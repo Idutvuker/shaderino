@@ -38,6 +38,10 @@ uniform float uAlpha;
 uniform float uBeta;
 uniform float uGamma;
 uniform float uAspect;
+uniform float uZoom;
+uniform float uRadius;
+
+uniform int uIters;
 
 const int MAX_STEPS = 70;
 const float MAX_DIST = 1000.0;
@@ -53,9 +57,6 @@ vec3 Offset = vec3(-1, -0.1, -0.5);
 
 mat3 rot;
 
-int uIters = 10;
-float uRadius = 0.02;
-float uZoom = 2.0;
 
 vec4 getDist(vec3 z)
 {
