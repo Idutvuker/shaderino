@@ -173,9 +173,9 @@ engine.runRenderLoop(() => {
   // shaderMaterial.setFloat('uBeta', getSliderBeta());
   // shaderMaterial.setFloat('uGamma', getSliderGamma());
 
-  shaderMaterial.setFloat('uAlpha', orientation.alpha);
-  shaderMaterial.setFloat('uBeta', orientation.beta);
-  shaderMaterial.setFloat('uGamma', orientation.gamma);
+  shaderMaterial.setFloat('uAlpha', orientation.alpha / 360 * Math.PI * 2);
+  shaderMaterial.setFloat('uBeta', orientation.beta / 360 * Math.PI * 2);
+  shaderMaterial.setFloat('uGamma', orientation.gamma / 360 * Math.PI * 2);
 
   shaderMaterial.setFloat('uAspect', aspect);
   shaderMaterial.setFloat('uZoom', getSliderZoom());
@@ -205,9 +205,9 @@ function requestFullscreen() {
 let orientation = { alpha: 0, beta: 0, gamma: 0 };
 
 function handleOrientation(event: DeviceOrientationEvent) {
-  orientation.alpha = event.alpha || 0;
-  orientation.beta = event.beta || 0;
-  orientation.gamma = event.gamma || 0;
+  orientation.alpha += (event.alpha ?? 0 - orientation.alpha) * 0.1;
+  orientation.beta += (event.beta ?? 0 - orientation.beta) * 0.1;
+  orientation.gamma += (event.gamma ?? 0 - orientation.gamma) * 0.1;
 }
 
 function enableDeviceOrientation() {
