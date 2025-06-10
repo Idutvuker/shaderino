@@ -169,13 +169,13 @@ engine.runRenderLoop(() => {
   shaderMaterial.setFloat('iTime', t);
   shaderMaterial.setVector2('iMouse', { x: mouse.x, y: mouse.y });
 
-  // shaderMaterial.setFloat('uAlpha', getSliderAlpha());
-  // shaderMaterial.setFloat('uBeta', getSliderBeta());
-  // shaderMaterial.setFloat('uGamma', getSliderGamma());
+  shaderMaterial.setFloat('uAlpha', getSliderAlpha());
+  shaderMaterial.setFloat('uBeta', getSliderBeta());
+  shaderMaterial.setFloat('uGamma', getSliderGamma());
 
-  shaderMaterial.setFloat('uAlpha', orientation.alpha / 360 * Math.PI * 2);
-  shaderMaterial.setFloat('uBeta', orientation.beta / 360 * Math.PI * 2);
-  shaderMaterial.setFloat('uGamma', orientation.gamma / 360 * Math.PI * 2);
+  // shaderMaterial.setFloat('uAlpha', orientation.alpha / 360 * Math.PI * 2);
+  // shaderMaterial.setFloat('uBeta', orientation.beta / 360 * Math.PI * 2);
+  // shaderMaterial.setFloat('uGamma', orientation.gamma / 360 * Math.PI * 2);
 
   shaderMaterial.setFloat('uAspect', aspect);
   shaderMaterial.setFloat('uZoom', getSliderZoom());
@@ -238,7 +238,7 @@ if (typeof DeviceOrientationEvent !== 'undefined' &&
   motionBtn.style.bottom = '16px';
   motionBtn.style.left = '16px';
   motionBtn.style.zIndex = '20';
-  document.body.appendChild(motionBtn);
+  // document.body.appendChild(motionBtn);
   motionBtn.addEventListener('click', () => {
     enableDeviceOrientation();
     motionBtn.style.display = 'none';
