@@ -91,6 +91,7 @@ canvas.addEventListener('pointermove', (e) => {
 });
 
 // === UI SLIDER SETUP ===
+// @ts-ignore
 const getSliderAlpha = createSliderUI({
   label: 'Alpha',
   min: 0,
@@ -101,6 +102,7 @@ const getSliderAlpha = createSliderUI({
   smooth: true,
   smoothFactor: 0.1
 });
+// @ts-ignore
 const getSliderBeta = createSliderUI({
   label: 'Beta',
   min: 0,
@@ -111,6 +113,7 @@ const getSliderBeta = createSliderUI({
   smooth: true,
   smoothFactor: 0.1
 });
+// @ts-ignore
 const getSliderGamma = createSliderUI({
   label: 'Gamma',
   min: 0,
