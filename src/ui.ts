@@ -7,7 +7,9 @@ export function createSliderUI({
   step = 0.01,
   value = 3.0,
   id = 'slider1',
-  unit = ''
+  unit = '',
+  smooth = false,
+  smoothFactor = 0.15
 } = {}) {
   const sliderContainer = document.createElement('div');
   sliderContainer.style.position = 'static'; // Remove fixed positioning from individual sliders
@@ -61,6 +63,23 @@ export function createSliderUI({
   sliderContainer.appendChild(sliderLabel);
   sliderContainer.appendChild(slider);
   sliderContainer.appendChild(sliderValue);
+  parent.appendChild(sliderContainer);
 
-  return () => parseFloat(slider.value);
+  let target = parseFloat(slider.value);
+  let smoothValue = target;
+
+  if (smooth) {
+    setInterval(() => {
+      target = parseFloat(slider.value);
+    }, 50);
+  }
+
+  return () => {
+    if (smooth) {
+      smoothValue += (target - smoothValue) * smoothFactor;
+      return smoothValue;
+    } else {
+      return parseFloat(slider.value);
+    }
+  };
 }

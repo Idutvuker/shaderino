@@ -34,6 +34,9 @@ const camera = new FreeCamera('camera', new Vector3(0, 0, -1), scene);
 camera.setTarget(Vector3.Zero());
 camera.mode = FreeCamera.ORTHOGRAPHIC_CAMERA;
 
+// Fullscreen quad
+const plane = MeshBuilder.CreatePlane('plane', { size: 2 }, scene);
+
 function updateOrthoCamera() {
   const aspect = engine.getRenderWidth() / engine.getRenderHeight();
   const orthoSize = 1;
@@ -41,6 +44,9 @@ function updateOrthoCamera() {
   camera.orthoRight = orthoSize * aspect;
   camera.orthoTop = orthoSize;
   camera.orthoBottom = -orthoSize;
+  // Resize the plane to always cover the viewport
+  plane.scaling.x = aspect;
+  plane.scaling.y = 1;
 }
 
 updateOrthoCamera();
@@ -49,16 +55,13 @@ updateOrthoCamera();
 Effect.ShadersStore['customFragmentShader'] = fragmentShader2;
 Effect.ShadersStore['customVertexShader'] = vertexShader;
 
-// Fullscreen quad
-const plane = MeshBuilder.CreatePlane('plane', { size: 2 }, scene);
-
 // Shader material
 const shaderMaterial = new ShaderMaterial('shader', scene, {
   vertex: 'custom',
   fragment: 'custom',
 }, {
   attributes: ['position', 'uv'],
-  uniforms: ['worldViewProjection', 'iTime', 'iMouse', 'uAlpha', 'uBeta', 'uGamma'],
+  uniforms: ['worldViewProjection', 'iTime', 'iMouse', 'uAlpha', 'uBeta', 'uGamma', 'uAspect'],
 });
 
 shaderMaterial.setFloat('iTime', 0);
@@ -95,8 +98,9 @@ const getSliderAlpha = createSliderUI({
   step: 0.01,
   value: 0.0,
   id: 'slider1',
+  smooth: true,
+  smoothFactor: 0.1
 });
-
 const getSliderBeta = createSliderUI({
   label: 'Beta',
   min: 0,
@@ -104,8 +108,9 @@ const getSliderBeta = createSliderUI({
   step: 0.01,
   value: 0.3,
   id: 'slider1',
+  smooth: true,
+  smoothFactor: 0.1
 });
-
 const getSliderGamma = createSliderUI({
   label: 'Gamma',
   min: 0,
@@ -113,22 +118,57 @@ const getSliderGamma = createSliderUI({
   step: 0.01,
   value: 1.0,
   id: 'slider1',
+  smooth: true,
+  smoothFactor: 0.1
 });
+
+// --- Fullscreen Button ---
+function addFullscreenButton() {
+  const btn = document.createElement('button');
+  btn.textContent = 'Go Fullscreen';
+  btn.style.position = 'fixed';
+  btn.style.bottom = '32px';
+  btn.style.left = '50%';
+  btn.style.transform = 'translateX(-50%)';
+  btn.style.zIndex = '1000';
+  btn.style.padding = '12px 24px';
+  btn.style.fontSize = '1.2em';
+  btn.style.background = 'rgba(0,0,0,0.8)';
+  btn.style.color = '#fff';
+  btn.style.border = 'none';
+  btn.style.borderRadius = '8px';
+  btn.style.cursor = 'pointer';
+  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  btn.style.userSelect = 'none';
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    requestFullscreen();
+    // btn.remove();
+  }, { passive: false });
+
+  document.body.appendChild(btn);
+}
+addFullscreenButton();
+
+const dampFactor = 0.92; // Dampen mouse speed
 
 // Animate
 engine.runRenderLoop(() => {
   const t = performance.now() * 0.001;
+  const aspect = engine.getRenderWidth() / engine.getRenderHeight();
 
   mouse.x += mouseSpeed.x;
   mouse.y += mouseSpeed.y;
-  mouseSpeed.x *= 0.9; // Dampen mouse speed
-  mouseSpeed.y *= 0.9;
+  mouseSpeed.x *= dampFactor; // Dampen mouse speed
+  mouseSpeed.y *= dampFactor;
 
   shaderMaterial.setFloat('iTime', t);
   shaderMaterial.setVector2('iMouse', { x: mouse.x, y: mouse.y });
   shaderMaterial.setFloat('uAlpha', getSliderAlpha());
   shaderMaterial.setFloat('uBeta', getSliderBeta());
   shaderMaterial.setFloat('uGamma', getSliderGamma());
+  shaderMaterial.setFloat('uAspect', aspect);
   scene.render();
 });
 

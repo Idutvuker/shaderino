@@ -37,6 +37,7 @@ uniform vec2 iMouse;
 uniform float uAlpha;
 uniform float uBeta;
 uniform float uGamma;
+uniform float uAspect;
 
 const int MAX_STEPS = 70;
 const float MAX_DIST = 1000.0;
@@ -178,6 +179,7 @@ mat3 rotationZ( in float angle ) {
 vec4 color()
 {
 	vec2 uv = vUV * 2.0 - 1.0;
+    uv.y /= uAspect;
 	vec2 mpos = iMouse.xy;
 
 	mat3 rotY = rotationY(-mpos.x * sensitivity);
